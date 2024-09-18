@@ -47,9 +47,6 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("X", 0);
         }
 
-        Debug.Log("X:" + animator.GetFloat("X"));
-        Debug.Log("Y:" + animator.GetFloat("Y"));
-
         Vector2 newvelocity = new Vector2(hAxis, vAxis).normalized;
 
         rb.velocity = newvelocity * speed;
