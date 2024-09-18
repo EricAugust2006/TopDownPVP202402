@@ -135,6 +135,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: IngameDebugConsole
       objectReference: {fileID: 0}
+    - target: {fileID: 11452418, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
+      propertyPath: startMinimized
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 22426080, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -526,7 +530,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4009b4782f46b2498e0b8bc2cb4bb87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  projectilePrefab: {fileID: 8090790231997816595, guid: 652f6819496e43a45b55b38403d4c62f, type: 3}
   speed: 5
+  projectileSpeed: 10
 --- !u!61 &1275975623
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -598,7 +604,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!1001 &4450424604252730514
 PrefabInstance:
   m_ObjectHideFlags: 0

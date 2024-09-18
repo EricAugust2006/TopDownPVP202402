@@ -4,10 +4,18 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] GameObject projectilePrefab;
+    
     [SerializeField] float speed;
+
+    [SerializeField] float projectileSpeed;
 
     Animator animator;
     Rigidbody2D rb;
+
+    float vAxis, hAxis, atkDirH, atkDirV;
+
+    Vector2 lastMove = Vector2.down;
 
     // Start is called before the first frame update
     void Start()
@@ -25,16 +33,36 @@ public class PlayerController : MonoBehaviour
 
     void Attack() 
     {
+        atkDirH = Input.GetAxisRaw("Horizontal");
+        atkDirV = Input.GetAxisRaw("Vertical");
+
+        Vector2 atkDir = new Vector2(atkDirH, atkDirV).normalized;
+
+        if (atkDir != Vector2.zero)
+        {
+            lastMove = atkDir;
+        }
+
         if (Input.GetButtonDown("Fire1")) 
         {
             animator.SetTrigger("Atk");
+
+            GameObject projectile = Instantiate(projectilePrefab, 
+                                        transform.position, 
+                                        Quaternion.identity);
+
+            ProjectileController projectileController =
+                projectile.GetComponent<ProjectileController>();
+
+            projectileController.SetDirection(lastMove, projectileSpeed);
+
         }
     }
 
     void Move() 
     {
-        float hAxis = Input.GetAxis("Horizontal");
-        float vAxis = Input.GetAxis("Vertical");
+        hAxis = Input.GetAxis("Horizontal");
+        vAxis = Input.GetAxis("Vertical");
 
         if(Mathf.Abs(hAxis) >= 0.01) {
             animator.SetFloat("X", hAxis);
