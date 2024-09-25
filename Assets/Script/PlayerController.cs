@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+
     [SerializeField] GameObject projectilePrefab;
     
     [SerializeField] float speed;
@@ -54,7 +55,9 @@ public class PlayerController : MonoBehaviour
             ProjectileController projectileController =
                 projectile.GetComponent<ProjectileController>();
 
-            projectileController.SetDirection(lastMove, projectileSpeed);
+            Collider2D collider = GetComponent<Collider2D>();
+
+            projectileController.SetProjectile(lastMove, projectileSpeed, collider.GetInstanceID());
 
         }
     }
