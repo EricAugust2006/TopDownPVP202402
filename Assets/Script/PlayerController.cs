@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
 
     [SerializeField] GameObject projectilePrefab;
@@ -21,6 +22,8 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (!IsOwner) return;
+
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
     }
@@ -28,6 +31,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!IsOwner) return;
+
         Move();
         Attack();
     }
@@ -46,11 +51,17 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Fire1")) 
         {
+
+            // Define a rotação do projetil baseado na direção do último movimento
+            float angle = Mathf.Atan2(lastMove.y, lastMove.x) * Mathf.Rad2Deg;
+            
+            Quaternion rotation = Quaternion.Euler(0, 0, angle);
+
             animator.SetTrigger("Atk");
 
             GameObject projectile = Instantiate(projectilePrefab, 
-                                        transform.position, 
-                                        Quaternion.identity);
+                                        transform.position,
+                                        rotation);
 
             ProjectileController projectileController =
                 projectile.GetComponent<ProjectileController>();

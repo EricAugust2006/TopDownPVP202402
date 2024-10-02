@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Unity.Netcode;
 
-public class HealthController : MonoBehaviour
+public class HealthController : NetworkBehaviour
 {
-    [SerializeField] int health;
+    public NetworkVariable<int> health;
     [SerializeField] TextMeshProUGUI txtHealth;
 
     // Start is called before the first frame update
@@ -22,8 +23,8 @@ public class HealthController : MonoBehaviour
 
     public void TakeDamage(int damage) 
     { 
-        health -= damage;
-        if (health <= 0) 
+        health.Value -= damage;
+        if (health.Value <= 0) 
         { 
             Destroy(gameObject);
         }
@@ -32,7 +33,7 @@ public class HealthController : MonoBehaviour
     public void DrawHealth() 
     {
         string txt = "";
-        for (int i = 0; i < health; i++)
+        for (int i = 0; i < health.Value; i++)
         {
             txt += "♥";
         }
