@@ -21,10 +21,6 @@ public class NetworkGUI : MonoBehaviour
             { 
                 NetworkManager.Singleton.Shutdown();
             }
-            if (NetworkManager.Singleton.IsServer && GUILayout.Button("Re-Launch")) 
-            {
-                GameManager GM = FindObjectOfType<GameManager>();
-            }
         }
     }
 

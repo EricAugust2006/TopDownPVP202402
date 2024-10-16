@@ -6,6 +6,8 @@ using UnityEngine;
 public class PlayerController : NetworkBehaviour
 {
 
+    public NetworkVariable<int> playerId;
+
     [SerializeField] GameObject projectilePrefab;
     
     [SerializeField] float speed;
@@ -19,11 +21,29 @@ public class PlayerController : NetworkBehaviour
 
     Vector2 lastMove = Vector2.down;
 
+    public override void OnNetworkSpawn()
+    {
+        // Somente o servidor deve definir o playerId
+        if (IsServer)
+        {
+            SetPlayerId();
+        }
+
+        // Debug para verificar o ID
+        Debug.Log("Player ID apÃ³s o spawn: " + playerId.Value);
+    }
+
+    // Atribui o playerId no servidor
+    private void SetPlayerId()
+    {
+        playerId.Value = Random.Range(1, int.MaxValue);  // O servidor sorteia o valor
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         if (!IsOwner) return;
-
+        Debug.LogWarning("Meu playerId Ã© :"+playerId.Value);
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
     }
@@ -52,25 +72,34 @@ public class PlayerController : NetworkBehaviour
         if (Input.GetButtonDown("Fire1")) 
         {
 
-            // Define a rotação do projetil baseado na direção do último movimento
+            // Define a rotaÃ§Ã£o do projetil baseado na direÃ§Ã£o do Ãºltimo movimento
             float angle = Mathf.Atan2(lastMove.y, lastMove.x) * Mathf.Rad2Deg;
-            
-            Quaternion rotation = Quaternion.Euler(0, 0, angle);
 
             animator.SetTrigger("Atk");
 
-            GameObject projectile = Instantiate(projectilePrefab, 
-                                        transform.position,
-                                        rotation);
-
-            ProjectileController projectileController =
-                projectile.GetComponent<ProjectileController>();
-
-            Collider2D collider = GetComponent<Collider2D>();
-
-            projectileController.SetProjectile(lastMove, projectileSpeed, collider.GetInstanceID());
-
+            AttackServerRpc(lastMove, angle, playerId.Value);
         }
+    }
+
+    [ServerRpc]
+    void AttackServerRpc(Vector2 projDirection, float angle, int id) 
+    {
+
+        Quaternion rotation = Quaternion.Euler(0, 0, angle);
+
+        GameObject projectile = Instantiate(projectilePrefab,
+                                    transform.position,
+                                    rotation);
+
+        ProjectileController projectileController =
+            projectile.GetComponent<ProjectileController>();
+
+        projectileController.SetProjectile(projDirection, projectileSpeed, id);
+
+        NetworkObject projectileNetworkObject = projectile.GetComponent<NetworkObject>();
+
+        projectileNetworkObject.Spawn();
+
     }
 
     void Move() 

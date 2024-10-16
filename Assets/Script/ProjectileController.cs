@@ -1,23 +1,32 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class ProjectileController : MonoBehaviour
+public class ProjectileController : NetworkBehaviour
 {
-    int shooterId;
+    public NetworkVariable<int> shooterId = new NetworkVariable<int>(0);
 
-    Vector2 direction;
+    public NetworkVariable<Vector2> direction;
 
-    float speed;
+    public NetworkVariable<float> speed;
 
     Rigidbody2D rb;
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer) 
+        { 
+            rb = GetComponent<Rigidbody2D>();
+            rb.velocity = direction.Value * speed.Value;
+        }
+    }
+
 
     // Start is called before the first frame update
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        rb.velocity = direction * speed;
-        Destroy(gameObject, 0.1f);
+        
     }
 
     // Update is called once per frame
@@ -28,8 +37,8 @@ public class ProjectileController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        int id = collision.GetInstanceID();
-        if (collision.tag == "Player" && shooterId != id) 
+        int id = collision.GetComponent<PlayerController>().playerId.Value;
+        if (collision.tag == "Player" && shooterId.Value != id) 
         { 
             HealthController healthController = collision.GetComponent<HealthController>();
             healthController.TakeDamage(1);
@@ -38,9 +47,9 @@ public class ProjectileController : MonoBehaviour
 
     public void SetProjectile(Vector2 dir, float spd, int originId) 
     {
-        speed = spd;
-        direction = dir;
-        shooterId = originId;
+        speed.Value = spd;
+        direction.Value = dir;
+        shooterId.Value = originId;
     }
 
 }

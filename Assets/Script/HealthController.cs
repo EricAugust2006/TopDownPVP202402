@@ -22,10 +22,16 @@ public class HealthController : NetworkBehaviour
     }
 
     public void TakeDamage(int damage) 
-    { 
+    {
+        TakeDamageServerRpc(damage);
+    }
+
+    [ServerRpc]
+    void TakeDamageServerRpc(int damage) 
+    {
         health.Value -= damage;
-        if (health.Value <= 0) 
-        { 
+        if (health.Value <= 0)
+        {
             Destroy(gameObject);
         }
     }
