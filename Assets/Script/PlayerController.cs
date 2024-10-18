@@ -58,7 +58,7 @@ public class PlayerController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!IsOwner && !healthController.isMorto.Value) return;
+        if (!IsOwner || healthController.isMorto.Value) return;
         
         Move();
         Attack();

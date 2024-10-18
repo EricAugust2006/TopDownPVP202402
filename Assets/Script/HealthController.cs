@@ -6,8 +6,8 @@ using Unity.Netcode;
 
 public class HealthController : NetworkBehaviour
 {
-    public NetworkVariable<int> health;
-    public NetworkVariable<bool> isMorto;
+    public NetworkVariable<int> health = new NetworkVariable<int>(5);
+    public NetworkVariable<bool> isMorto = new NetworkVariable<bool>(false);
     
     [SerializeField] TextMeshProUGUI txtHealth;
 
@@ -21,7 +21,10 @@ public class HealthController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        DrawHealth();
+        if (IsClient)
+        {
+            DrawHealth(); // Apenas o cliente desenha a saúde
+        }
     }
 
     public void TakeDamage(int damage) 
@@ -29,10 +32,12 @@ public class HealthController : NetworkBehaviour
         TakeDamageServerRpc(damage);
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     void TakeDamageServerRpc(int damage) 
     {
-        if (isMorto.Value == false) 
+        if (!IsServer) return;
+
+        if (!isMorto.Value) 
         { 
             health.Value -= damage;
             if (health.Value <= 0)
