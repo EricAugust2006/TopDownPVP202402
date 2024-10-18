@@ -8,13 +8,19 @@ public class PlayerController : NetworkBehaviour
 
     public NetworkVariable<int> playerId;
 
+
+    [SerializeField] GameObject playerCam;
+
     [SerializeField] GameObject projectilePrefab;
+    
+    [SerializeField] HealthController healthController;
     
     [SerializeField] float speed;
 
     [SerializeField] float projectileSpeed;
 
     Animator animator;
+
     Rigidbody2D rb;
 
     float vAxis, hAxis, atkDirH, atkDirV;
@@ -46,13 +52,14 @@ public class PlayerController : NetworkBehaviour
         Debug.LogWarning("Meu playerId é :"+playerId.Value);
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        playerCam.SetActive(true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!IsOwner) return;
-
+        if (!IsOwner && !healthController.isMorto.Value) return;
+        
         Move();
         Attack();
     }

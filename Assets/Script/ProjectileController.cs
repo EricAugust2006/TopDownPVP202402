@@ -19,6 +19,7 @@ public class ProjectileController : NetworkBehaviour
         { 
             rb = GetComponent<Rigidbody2D>();
             rb.velocity = direction.Value * speed.Value;
+            Destroy(gameObject, 1f);
         }
     }
 
@@ -42,6 +43,7 @@ public class ProjectileController : NetworkBehaviour
         { 
             HealthController healthController = collision.GetComponent<HealthController>();
             healthController.TakeDamage(1);
+            Destroy(gameObject);
         }
     }
 

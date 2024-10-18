@@ -7,7 +7,10 @@ using Unity.Netcode;
 public class HealthController : NetworkBehaviour
 {
     public NetworkVariable<int> health;
+    public NetworkVariable<bool> isMorto;
+    
     [SerializeField] TextMeshProUGUI txtHealth;
+
 
     // Start is called before the first frame update
     void Start()
@@ -29,10 +32,13 @@ public class HealthController : NetworkBehaviour
     [ServerRpc]
     void TakeDamageServerRpc(int damage) 
     {
-        health.Value -= damage;
-        if (health.Value <= 0)
-        {
-            Destroy(gameObject);
+        if (isMorto.Value == false) 
+        { 
+            health.Value -= damage;
+            if (health.Value <= 0)
+            {
+                isMorto.Value = true;
+            }
         }
     }
 
