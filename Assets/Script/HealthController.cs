@@ -8,9 +8,13 @@ public class HealthController : NetworkBehaviour
 {
     public NetworkVariable<int> health = new NetworkVariable<int>(5);
     public NetworkVariable<bool> isMorto = new NetworkVariable<bool>(false);
-    
+
+    [SerializeField] Animator animator;
     [SerializeField] TextMeshProUGUI txtHealth;
 
+    float respawnTime = 5;
+
+    float respawnCounter = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -21,15 +25,42 @@ public class HealthController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (IsClient)
+        if (IsClient) 
         {
-            DrawHealth(); // Apenas o cliente desenha a saúde
+            DrawHealth();
         }
+
+        if (!IsOwner) return;
+
+        if (isMorto.Value)
+        {
+            RespawnCounter();
+            return;
+        }
+        else
+        {
+            animator.SetBool("Death", false);
+        }
+    }
+
+    public void RecoverHealth(int qtd) 
+    { 
+        RecoverHealthServerRpc(qtd);
     }
 
     public void TakeDamage(int damage) 
     {
         TakeDamageServerRpc(damage);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void RecoverHealthServerRpc(int qtd) 
+    {
+        if (!IsServer) return;
+
+        isMorto.Value = false;
+        health.Value = qtd;
+
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -47,12 +78,34 @@ public class HealthController : NetworkBehaviour
         }
     }
 
+    void RespawnCounter() 
+    {
+        animator.SetBool("Death", true);
+
+        respawnCounter += Time.deltaTime;
+
+        txtHealth.text = respawnCounter.ToString("0.00");
+
+        if (respawnCounter > respawnTime)
+        {
+            respawnCounter = 0;
+            RecoverHealth(5);
+        }
+    }
+
     public void DrawHealth() 
     {
         string txt = "";
-        for (int i = 0; i < health.Value; i++)
+        if (isMorto.Value && IsOwner) 
         {
-            txt += "♥";
+            txt = respawnCounter.ToString("0.00");
+        }
+        else 
+        { 
+            for (int i = 0; i < health.Value; i++)
+            {
+                txt += "♥";
+            }
         }
         txtHealth.text = txt;
     }

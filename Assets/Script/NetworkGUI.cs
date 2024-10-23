@@ -2,17 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-
 public class NetworkGUI : MonoBehaviour
 {
-
     GameManager gameManager;
 
     private void OnGUI()
     {
         if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
         {
-            StartButtons();
+            //StartButtons();
         }
         else 
         { 
@@ -52,6 +50,21 @@ public class NetworkGUI : MonoBehaviour
             NetworkManager.Singleton.StartServer();
         }
         GUILayout.EndArea();
+    }
+
+    public void StartHost() 
+    {
+        NetworkManager.Singleton.StartHost();
+    }
+
+    public void StartClient()
+    {
+        NetworkManager.Singleton.StartClient();
+    }
+
+    public void StartServer() 
+    {
+        NetworkManager.Singleton.StartServer();
     }
 
     private void StatusLabel() 

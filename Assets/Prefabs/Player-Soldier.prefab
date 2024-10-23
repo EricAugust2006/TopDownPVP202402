@@ -253,6 +253,7 @@ MonoBehaviour:
     m_InternalValue: 5
   isMorto:
     m_InternalValue: 0
+  animator: {fileID: 8675343135813426411}
   txtHealth: {fileID: 84873974275462473}
 --- !u!50 &1997227551226970640
 Rigidbody2D:
