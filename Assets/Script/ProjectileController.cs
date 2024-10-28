@@ -18,7 +18,7 @@ public class ProjectileController : NetworkBehaviour
         if (IsServer) 
         { 
             rb = GetComponent<Rigidbody2D>();
-            rb.velocity = direction.Value * speed.Value;
+            rb.linearVelocity = direction.Value * speed.Value;
             Destroy(gameObject, 1f);
         }
     }
