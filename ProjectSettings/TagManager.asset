@@ -42,3 +42,24 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: camada0
+    uniqueID: 3155862501
+    locked: 0
+  - name: camada1
+    uniqueID: 187819011
+    locked: 0
+  - name: camada2
+    uniqueID: 3256096837
+    locked: 0
+  - name: Player
+    uniqueID: 759726645
+    locked: 0
+  - name: camada3
+    uniqueID: 1343544077
+    locked: 0
+  - name: HUD
+    uniqueID: 3625714713
+    locked: 0
+  - name: UI
+    uniqueID: 3967295269
+    locked: 0

@@ -5,69 +5,80 @@ using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
-
     public NetworkVariable<int> playerId;
 
-
     [SerializeField] GameObject playerCam;
-
     [SerializeField] GameObject projectilePrefab;
-    
     [SerializeField] HealthController healthController;
-    
     [SerializeField] float speed;
-
     [SerializeField] float projectileSpeed;
 
     Animator animator;
-
     Rigidbody2D rb;
+    SpriteRenderer spriteRenderer;
 
-    float vAxis, hAxis, atkDirH, atkDirV;
-
+    float vAxis, hAxis;
     Vector2 lastMove = Vector2.down;
+
+    private Color defaultColor = Color.white;
 
     public override void OnNetworkSpawn()
     {
-        // Somente o servidor deve definir o playerId
         if (IsServer)
         {
             SetPlayerId();
         }
 
-        // Debug para verificar o ID
+        SetPlayerColor();
         Debug.Log("Player ID após o spawn: " + playerId.Value);
     }
 
-    // Atribui o playerId no servidor
     private void SetPlayerId()
     {
-        playerId.Value = Random.Range(1, int.MaxValue);  // O servidor sorteia o valor
+        playerId.Value = Random.Range(1, int.MaxValue); 
     }
 
-    // Start is called before the first frame update
+    private void SetPlayerColor()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (IsOwner && IsHost)
+        {
+            spriteRenderer.color = defaultColor;
+        }
+        else
+        {
+            Color randomColor = new Color(
+                Random.Range(0f, 1f),
+                Random.Range(0f, 1f),
+                Random.Range(0f, 1f)
+            );
+
+            spriteRenderer.color = randomColor;
+        }
+    }
+
     void Start()
     {
         if (!IsOwner) return;
-        Debug.LogWarning("Meu playerId é :"+playerId.Value);
+
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         playerCam.SetActive(true);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (!IsOwner || healthController.isMorto.Value) return;
-        
+
         Move();
         Attack();
     }
 
     void Attack() 
     {
-        atkDirH = Input.GetAxisRaw("Horizontal");
-        atkDirV = Input.GetAxisRaw("Vertical");
+        float atkDirH = Input.GetAxisRaw("Horizontal");
+        float atkDirV = Input.GetAxisRaw("Vertical");
 
         Vector2 atkDir = new Vector2(atkDirH, atkDirV).normalized;
 
@@ -78,12 +89,8 @@ public class PlayerController : NetworkBehaviour
 
         if (Input.GetButtonDown("Fire1")) 
         {
-
-            // Define a rotação do projetil baseado na direção do último movimento
             float angle = Mathf.Atan2(lastMove.y, lastMove.x) * Mathf.Rad2Deg;
-
             animator.SetTrigger("Atk");
-
             AttackServerRpc(lastMove, angle, playerId.Value);
         }
     }
@@ -91,43 +98,29 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc]
     void AttackServerRpc(Vector2 projDirection, float angle, int id) 
     {
-
         Quaternion rotation = Quaternion.Euler(0, 0, angle);
+        GameObject projectile = Instantiate(projectilePrefab, transform.position, rotation);
 
-        GameObject projectile = Instantiate(projectilePrefab,
-                                    transform.position,
-                                    rotation);
-
-        ProjectileController projectileController =
-            projectile.GetComponent<ProjectileController>();
-
+        ProjectileController projectileController = projectile.GetComponent<ProjectileController>();
         projectileController.SetProjectile(projDirection, projectileSpeed, id);
 
         NetworkObject projectileNetworkObject = projectile.GetComponent<NetworkObject>();
-
         projectileNetworkObject.Spawn();
-
     }
 
     void Move() 
     {
-        hAxis = Input.GetAxis("Horizontal");
-        vAxis = Input.GetAxis("Vertical");
+        hAxis = Input.GetAxisRaw("Horizontal");
+        vAxis = Input.GetAxisRaw("Vertical");
 
-        if(Mathf.Abs(hAxis) >= 0.01) {
+        if (Mathf.Abs(hAxis) > 0.01f || Mathf.Abs(vAxis) > 0.01f)
+        {
             animator.SetFloat("X", hAxis);
-            animator.SetFloat("Y", 0);
-        }
-
-        if (Mathf.Abs(vAxis) >= 0.01) {
-            
             animator.SetFloat("Y", vAxis);
-            animator.SetFloat("X", 0);
+            lastMove = new Vector2(hAxis, vAxis).normalized;
         }
 
-        Vector2 newvelocity = new Vector2(hAxis, vAxis).normalized;
-
-        rb.velocity = newvelocity * speed;
+        Vector2 newVelocity = new Vector2(hAxis, vAxis).normalized * speed;
+        rb.velocity = newVelocity;
     }
-
 }
