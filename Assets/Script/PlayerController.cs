@@ -10,6 +10,15 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] GameObject playerCam;
     [SerializeField] GameObject projectilePrefab;
     [SerializeField] HealthController healthController;
+
+
+    [SerializeField] public GameObject playerCam;
+
+    [SerializeField] GameObject projectilePrefab;
+
+    [SerializeField] HealthController healthController;
+
+
     [SerializeField] float speed;
     [SerializeField] float projectileSpeed;
 
@@ -62,6 +71,9 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+
+        Debug.LogWarning("Meu playerId é :" + playerId.Value);
+
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         playerCam.SetActive(true);
@@ -72,10 +84,18 @@ public class PlayerController : NetworkBehaviour
         if (!IsOwner || healthController.isMorto.Value) return;
 
         Move();
+
+
         Attack();
     }
 
-    void Attack() 
+    void FixedUpdate()
+    {
+        Move();
+
+    }
+
+    void Attack()
     {
         float atkDirH = Input.GetAxisRaw("Horizontal");
         float atkDirV = Input.GetAxisRaw("Vertical");
@@ -87,7 +107,7 @@ public class PlayerController : NetworkBehaviour
             lastMove = atkDir;
         }
 
-        if (Input.GetButtonDown("Fire1")) 
+        if (Input.GetButtonDown("Fire1"))
         {
             float angle = Mathf.Atan2(lastMove.y, lastMove.x) * Mathf.Rad2Deg;
             animator.SetTrigger("Atk");
@@ -96,7 +116,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc]
-    void AttackServerRpc(Vector2 projDirection, float angle, int id) 
+    void AttackServerRpc(Vector2 projDirection, float angle, int id)
     {
         Quaternion rotation = Quaternion.Euler(0, 0, angle);
         GameObject projectile = Instantiate(projectilePrefab, transform.position, rotation);
@@ -108,7 +128,7 @@ public class PlayerController : NetworkBehaviour
         projectileNetworkObject.Spawn();
     }
 
-    void Move() 
+    void Move()
     {
         hAxis = Input.GetAxisRaw("Horizontal");
         vAxis = Input.GetAxisRaw("Vertical");
@@ -116,11 +136,27 @@ public class PlayerController : NetworkBehaviour
         if (Mathf.Abs(hAxis) > 0.01f || Mathf.Abs(vAxis) > 0.01f)
         {
             animator.SetFloat("X", hAxis);
+
+        if (Mathf.Abs(hAxis) >= 0.01)
+        {
+            animator.SetFloat("X", hAxis);
+            animator.SetFloat("Y", 0);
+        }
+
+        if (Mathf.Abs(vAxis) >= 0.01)
+        {
+
+
             animator.SetFloat("Y", vAxis);
             lastMove = new Vector2(hAxis, vAxis).normalized;
         }
 
         Vector2 newVelocity = new Vector2(hAxis, vAxis).normalized * speed;
         rb.velocity = newVelocity;
+
+        Vector2 newvelocity = new Vector2(hAxis, vAxis).normalized;
+
+        rb.linearVelocity = newvelocity * speed;
+
     }
 }

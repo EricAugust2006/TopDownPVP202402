@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags:
   - Attack
   layers:
@@ -63,3 +63,30 @@ TagManager:
   - name: UI
     uniqueID: 3967295269
     locked: 0
+
+  - name: chao
+    uniqueID: 3278661441
+    locked: 0
+  - name: camada1
+    uniqueID: 2410443125
+    locked: 0
+  - name: camada2
+    uniqueID: 2380246085
+    locked: 0
+  - name: camada3
+    uniqueID: 1993308519
+    locked: 0
+  - name: player
+    uniqueID: 740993255
+    locked: 0
+  - name: ARVre
+    uniqueID: 2822710903
+    locked: 0
+  - name: HUD
+    uniqueID: 1368174657
+    locked: 0
+  - name: UI
+    uniqueID: 1390600619
+    locked: 0
+  m_RenderingLayers:
+  - Default
